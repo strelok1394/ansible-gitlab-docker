@@ -1,0 +1,94 @@
+---
+- name: Purge Gitlab
+  block:
+  - name: Purge
+    raw: |
+       cd {{gitlab_homedir}} && docker-compose rm -fs
+       cd /
+       rm -rf {{gitlab_homedir}}
+
+  - meta: end_play
+  when: gitlab_purge == 'yes'
+
+- name: Create gitlab dirs
+  file:
+    path: '{{item.dir}}'
+    state: 'directory'
+    owner: '{{item.owner}}'
+    group: '{{item.group}}'
+    mode: '{{item.mode}}'
+  loop:
+   - {dir: '{{gitlab_etc_dir}}', mode: '0775', owner: 'root', group: 'root'}
+   - {dir: '{{gitlab_opt_dir}}', mode: '0755', owner: 'root', group: 'root'}
+   - {dir: '{{gitlab_log_dir}}', mode: '0755', owner: 'root', group: 'root'}
+   - {dir: '{{gitlab_backup_host_path}}', mode: '0700', owner: '998', group: 'root'}
+   - {dir: '{{gitlab_etc_dir}}/ssl', mode: '0755', owner: 'root', group: 'root'}
+  register: create_gitlab_dirs_out
+
+- name: Create docker-compose.yml
+  template:
+      src: "templates/docker-compose.yml.j2"
+      dest: "{{gitlab_homedir}}/docker-compose.yml"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+  register: create_docker_compose_out
+
+- name: Create gitlab.rb
+  template:
+      src: "templates/etc/gitlab/gitlab.rb.j2"
+      dest: "{{gitlab_etc_dir}}/gitlab.rb"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+  register: create_gitlab_rb_out
+
+- name: Copy ssl cert and key
+  copy:
+      src: "{{item.src}}"
+      dest: "{{item.dest}}"
+      mode: "0644"
+      owner: "root"
+      group: "root"
+      remote_src: "{{gitlab_use_local_certs}}"
+  loop:
+    - {src: '{{gitlab_tls_private_key_path}}', dest: '{{gitlab_homedir}}/etc/gitlab/ssl/tls.key'}
+    - {src: '{{gitlab_tls_certificate_path}}', dest: '{{gitlab_homedir}}/etc/gitlab/ssl/tls.crt'}
+    - {src: '{{gitlab_pages_ssl_certificate}}', dest: '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.crt'}
+    - {src: '{{gitlab_pages_ssl_certificate_key}}', dest: '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.key'}
+  register: copy_ssl_cert_out
+  when: 
+  - gitlab_https == 'yes'
+  - gitlab_letsncrypt_enable == 'no'
+
+- name: Delete ssl cert and key
+  file:
+    path: '{{item}}'
+    state: 'absent'
+  loop:
+    - '{{gitlab_homedir}}/etc/gitlab/ssl/tls.crt'
+    - '{{gitlab_homedir}}/etc/gitlab/ssl/tls.key'
+    - '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.crt'
+    - '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.key'
+  register: gitlab_delete_cert_out
+  when: gitlab_https == 'no' or gitlab_letsncrypt_enable == 'yes'
+
+- name: Start/Restart gitlab
+  block:
+  - name: Start/Restart
+    raw: |
+       cd {{gitlab_homedir}} || exit 1
+       docker-compose down --remove-orphans
+       docker-compose up -d
+    register: gitlab_restarted
+
+  - name: Wait to start Gitlab Server
+    raw: |
+       while true; do docker inspect {{gitlab_docker_container_name}} | grep '"Status": "healthy"' > /dev/null; if [ "$(echo $?)" -eq 0 ]; then break; fi; sleep 10;  done;
+  when:
+  - gitlab_docker_start == 'yes' 
+  - create_gitlab_dirs_out.changed or
+    create_gitlab_rb_out.changed or
+    copy_ssl_cert_out.changed or
+    gitlab_delete_cert_out.changed or
+    create_docker_compose_out.changed

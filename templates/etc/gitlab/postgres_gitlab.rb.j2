@@ -1,0 +1,137 @@
+################################################################
+## GitLab PostgreSQL
+################################################################
+
+###! Changing any of these settings requires a restart of postgresql.
+###! By default, reconfigure reloads postgresql if it is running. If you
+###! change any of these settings, be sure to run `gitlab-ctl restart postgresql`
+###! after reconfigure in order for the changes to take effect.
+postgresql['enable'] = {{gitlab.postgresql.enable}}
+postgresql['listen_address'] = {{gitlab.postgresql.listen_address}}
+postgresql['port'] = {{gitlab.postgresql.port}}
+postgresql['data_dir'] = "{{gitlab.postgresql.data_dir}}"
+
+##! **recommend value is 1/4 of total RAM, up to 14GB.**
+postgresql['shared_buffers'] = "{{gitlab.postgresql.shared_buffers}}"
+
+{%if gitlab.postgresql.advanced.settings == 'yes' %}
+### Advanced settings
+postgresql['ha'] = {{gitlab.postgresql.ha}}
+postgresql['dir'] = "{{gitlab.postgresql.dir}}"
+postgresql['log_directory'] = "{{gitlab.postgresql.log_directory}}"
+postgresql['username'] = "{{gitlab.postgresql.username}}"
+postgresql['group'] = "{{gitlab.postgresql.group}}"
+##! `SQL_USER_PASSWORD_HASH` can be generated using the command `gitlab-ctl pg-password-md5 gitlab`
+postgresql['sql_user_password'] = '{{gitlab.postgresql.sql_user_password}}'
+postgresql['uid'] = {{gitlab.postgresql.uid}}
+postgresql['gid'] = {{gitlab.postgresql.gid}}
+postgresql['shell'] = "{{gitlab.postgresql.shell}}"
+postgresql['home'] = "{{gitlab.postgresql.home}}"
+postgresql['user_path'] = "{{gitlab.postgresql.user_path}}"
+postgresql['sql_user'] = "{{gitlab.postgresql.sql_user}}"
+postgresql['max_connections'] = {{gitlab.postgresql.max_connections}}
+postgresql['md5_auth_cidr_addresses'] = {{gitlab.postgresql.md5_auth_cidr_addresses}}
+postgresql['trust_auth_cidr_addresses'] = {{gitlab.postgresql.trust_auth_cidr_addresses}}
+postgresql['wal_buffers'] = "{{gitlab.postgresql.wal_buffers}}"
+postgresql['autovacuum_max_workers'] = "{{gitlab.postgresql.autovacuum_max_workers}}"
+postgresql['autovacuum_freeze_max_age'] = "{{gitlab.postgresql.autovacuum_freeze_max_age}}"
+postgresql['log_statement'] = {{gitlab.postgresql.log_statement}}
+postgresql['track_activity_query_size'] = "{{gitlab.postgresql.track_activity_query_size}}"
+postgresql['shared_preload_libraries'] = {{gitlab.postgresql.shared_preload_libraries}}
+postgresql['dynamic_shared_memory_type'] = {{gitlab.postgresql.dynamic_shared_memory_type}}
+postgresql['hot_standby'] = "{{gitlab.postgresql.hot_standby}}"
+{%endif%}
+
+{%if gitlab.postgresql.ssl.setting == 'yes'%}
+### SSL settings
+# See https://www.postgresql.org/docs/9.6/static/runtime-config-connection.html#GUC-SSL-CERT-FILE for more details
+postgresql['ssl'] = '{{gitlab.postgresql.ssl}}'
+postgresql['ssl_ciphers'] = '{{gitlab.postgresql.ssl_ciphers}}'
+postgresql['ssl_cert_file'] = '{{gitlab.postgresql.ssl_cert_file}}'
+postgresql['ssl_key_file'] = '{{gitlab.postgresql.ssl_key_file}}'
+postgresql['ssl_ca_file'] = '{{gitlab.postgresql.ssl_ca_file}}'
+postgresql['ssl_crl_file'] = {{gitlab.postgresql.ssl_crl_file}}
+
+{%endif%}
+{if gitlab.postgresql.replication.settings == 'yes'}
+### Replication settings
+###! Note, some replication settings do not require a full restart. They are documented below.
+postgresql['wal_level'] = "{{gitlab.postgresql.wal_level}}"
+postgresql['max_wal_senders'] = {{gitlab.postgresql.max_wal_senders}}
+postgresql['max_replication_slots'] = {{gitlab.postgresql.max_replication_slots}}
+postgresql['max_locks_per_transaction'] = {{gitlab.postgresql.max_locks_per_transaction}}
+postgresql['sql_replication_user'] = "{{gitlab.postgresql.sql_replication_user}}"
+postgresql['sql_replication_password'] = "{{gitlab.postgresql.sql_replication_password}}" # You can generate with `gitlab-ctl pg-password-md5 <dbuser>`
+postgresql['wal_keep_segments'] = {{gitlab.postgresql.wal_keep_segments}}
+postgresql['max_standby_archive_delay'] = "{{gitlab.postgresql.max_standby_archive_delay}}"
+postgresql['max_standby_streaming_delay'] = "{{gitlab.postgresql.max_standby_streaming_delay}}"
+postgresql['synchronous_commit'] = {{gitlab.postgresql.synchronous_commit}}
+postgresql['synchronous_standby_names'] = '{{gitlab.postgresql.synchronous_standby_names}}'
+postgresql['hot_standby_feedback'] = '{{gitlab.postgresql.hot_standby_feedback}}'
+postgresql['random_page_cost'] = {{gitlab.postgresql.random_page_cost}}
+postgresql['log_temp_files'] = {{gitlab.postgresql.log_temp_files}}
+postgresql['log_checkpoints'] = '{{gitlab.postgresql.log_checkpoints}}'
+### Available in PostgreSQL 9.6 and later
+postgresql['min_wal_size'] = {{gitlab.postgresql.min_wal_size}}
+postgresql['max_wal_size'] = {{gitlab.postgresql.max_wal_size}}
+{%endif%}
+
+{%if gitlab.postgresql.backup.settings == 'yes' %}
+# Backup/Archive settings
+postgresql['archive_mode'] = "{{gitlab.postgresql.archive_mode}}"
+postgresql['archive_command'] = {{gitlab.postgresql.archive_command}}
+postgresql['archive_timeout'] = "{{gitlab.postgresql.archive_timeout}}"
+
+{%endif%}
+{%if gitlab.postgresql.perfomance.settings == 'yes'%}
+###! Changing any of these settings only requires a reload of postgresql. You do not need to
+###! restart postgresql if you change any of these and run reconfigure.
+postgresql['work_mem'] = "{{gitlab.postgresql.work_mem}}"
+postgresql['maintenance_work_mem'] = "{{gitlab.postgresql.maintenance_work_mem}}"
+postgresql['checkpoint_segments'] = {{gitlab.postgresql.checkpoint_segments}}
+postgresql['checkpoint_timeout'] = "{{gitlab.postgresql.checkpoint_timeout}}"
+postgresql['checkpoint_completion_target'] = {{gitlab.postgresql.checkpoint_completion_target}}
+postgresql['effective_io_concurrency'] = {{gitlab.postgresql.effective_io_concurrency}}
+postgresql['checkpoint_warning'] = "{{gitlab.postgresql.checkpoint_warning}}"
+postgresql['effective_cache_size'] = "{{gitlab.postgresql.effective_cache_size}}"
+postgresql['shmmax'] =  {{gitlab.postgresql.shmmax}}
+postgresql['shmall'] =  {{gitlab.postgresql.shmmall}}
+postgresql['autovacuum'] = "{{gitlab.postgresql.autovacuum}}"
+postgresql['log_autovacuum_min_duration'] = "{{gitlab.postgresql.log_autovacuum_min_duration}}"
+postgresql['autovacuum_naptime'] = "{{gitlab.postgresql.autovacuum_naptime}}"
+postgresql['autovacuum_vacuum_threshold'] = "{{gitlab.postgresql.autovacuum_vacuum_threshold}}"
+postgresql['autovacuum_analyze_threshold'] = "{{gitlab.postgresql.autovacuum_analyze_threshold}}"
+postgresql['autovacuum_vacuum_scale_factor'] = "{{gitlab.postgresql.autovacuum_vacuum_scale_factor}}"
+postgresql['autovacuum_analyze_scale_factor'] = "{{gitlab.postgresql.autovacuum_analyze_scale_factor}}"
+postgresql['autovacuum_vacuum_cost_delay'] = "{{gitlab.postgresql.autovacuum_vacuum_cost_delay}}"
+postgresql['autovacuum_vacuum_cost_limit'] = "{{gitlab.postgresql.autovacuum_vacuum_cost_limit}}"
+postgresql['statement_timeout'] = "{{gitlab.postgresql.statement_timeout}}"
+postgresql['idle_in_transaction_session_timeout'] = "{{gitlab.postgresql.idle_in_transaction_session_timeout}}"
+postgresql['log_line_prefix'] = "{{gitlab.postgresql.log_line_prefix}}"
+postgresql['max_worker_processes'] = {{gitlab.postgresql.max_worker_processes}}
+postgresql['max_parallel_workers_per_gather'] = {{gitlab.postgresql.max_parallel_workers_per_gather}}
+postgresql['log_lock_waits'] = {{gitlab.postgresql.log_lock_waits}}
+postgresql['deadlock_timeout'] = '{{gitlab.postgresql.deadlock_timeout}}'
+postgresql['track_io_timing'] = {{gitlab.postgresql.track_io_timing}}
+postgresql['default_statistics_target'] = {{gitlab.postgresql.default_statistics_target}}
+
+{%endif%}
+# To add custom entries to pg_hba.conf use the following
+# postgresql['custom_pg_hba_entries'] = {
+#   APPLICATION: [ # APPLICATION should identify what the settings are used for
+#     {
+#       type: example,
+#       database: example,
+#       user: example,
+#       cidr: example,
+#       method: example,
+#       option: example
+#     }
+#   ]
+# }
+# See https://www.postgresql.org/docs/9.6/static/auth-pg-hba-conf.html for an explanation
+# of the values
+
+### Version settings
+# Set this if you have disabled the bundled PostgreSQL but still want to use the backup rake tasks
+postgresql['version'] = {{gitlab.postgresql.version}}

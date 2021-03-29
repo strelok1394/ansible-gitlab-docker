@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+    gitlab-ce:
+        image: {{gitlab_docker_image}}
+        hostname: {{gitlab_docker_hostname}}
+        container_name: {{gitlab_docker_container_name}}
+        restart: always
+        networks:
+           - {{gitlab_networks}}
+        shm_size: {{gitlab_docker_shm_size}}
+        volumes:
+           - type: bind
+             source: {{gitlab_etc_dir}}
+             target: /etc/gitlab
+           - type: bind
+             source: /etc/localtime
+             target: /etc/localtime
+           - type: bind
+             source: {{gitlab_opt_dir}}
+             target: /var/opt/gitlab
+           - type: bind
+             source: {{gitlab_log_dir}}
+             target: /var/log/gitlab
+           - type: bind
+             source: {{gitlab_backup_host_path}}
+             target: /var/opt/gitlab/backups
+        ports:
+           - "{{gitlab_http_ip}}:{{gitlab_http_port}}:80"
+{% if gitlab_https == 'yes' %}
+           - "{{gitlab_https_ip}}:{{gitlab_https_port}}:443"
+{% endif %}
+           - "{{gitlab_ssh_ip}}:{{gitlab_ssh_port}}:22"
+{% if gitlab_built_in_prometheus_enable is defined %}
+           - "{{gitlab_built_in_prometeus_address}}:{{gitlab_built_in_prometeus_port}}:9090"
+{% endif %}
+{% if gitlab_exporter_listen_address is defined %}
+           - "{{gitlab_exporter_listen_address}}:{{gitlab_exporter_listen_port}}:9168"
+{% endif %}
+{% if gitlab_sidekiq_listen_address is defined %}
+           - "{{gitlab_sidekiq_listen_address}}:{{gitlab_sidekiq_listen_port}}:8082"
+{% endif %}
+{% if gitlab_node_exporter_listen_address is defined %}
+           - "{{gitlab_node_exporter_listen_address}}:{{gitlab_node_exporter_listen_port}}:9100"
+{% endif %}
+{% if gitlab_redis_exporter_listen_address is defined %}
+           - "{{gitlab_redis_exporter_listen_address}}:{{gitlab_redis_exporter_listen_port}}:9121"
+{% endif %}
+{% if gitlab_postgres_exporter_listen_address is defined %}
+           - "{{gitlab_postgres_exporter_listen_address}}:{{gitlab_postgres_exporter_listen_port}}:9187"
+{% endif %}
+{% if gitlab_gitaly_prometheus_listen_address is defined %}
+           - "{{gitlab_gitaly_prometheus_listen_address}}:{{gitlab_gitaly_prometheus_listen_port}}:9236"
+{% endif %}
+{% if gitlab_workhorse_prometheus_listen_address is defined %}
+           - "{{gitlab_workhorse_prometheus_listen_address}}:{{gitlab_workhorse_prometheus_listen_port}}:9229"
+{% endif %}
+{% if gitlab_unicorn_listen_address is defined %}
+           - "{{gitlab_unicorn_listen_address}}:{{gitlab_unicorn_listen_port}}:8080"
+{% endif %}
+
+networks:
+        {{gitlab_networks}}:

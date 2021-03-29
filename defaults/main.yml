@@ -1,0 +1,236 @@
+---
+#############################
+# Render docker-compose.yml #
+#############################
+
+gitlab_purge: 'no'
+gitlab_docker_start: 'yes'
+gitlab_domain_name: "gitlab.example.com"
+gitlab_version: "12.7.0-ce.0"
+gitlab_docker_image: 'gitlab/gitlab-ce:{{gitlab_version}}'
+gitlab_docker_hostname: '{{inventory_hostname}}'
+gitlab_homedir: '/data/gitlab'
+gitlab_backup_host_path: '/data/gitlab/backups'
+gitlab_docker_shm_size: '512MB'
+
+gitlab_ssh_ip: "0.0.0.0"
+gitlab_http_ip: "{{gitlab_ssh_ip}}"
+gitlab_https_ip: "{{gitlab_ssh_ip}}"
+
+gitlab_http_port: '80'
+gitlab_https_port: '443'
+gitlab_ssh_port: '22'
+gitlab_promiteus_port: "8080"
+
+gitlab_https: 'no' # -> "pages need *.certs"
+#gitlab_https: 'no' reverse_proxy
+
+#If the variable "gitlab_use_local_certs" is set to "yes",
+#then the certificates are taken from the local path on the server
+gitlab_use_local_certs: 'no'
+gitlab_tls_private_key_path: 'etc/gitlab/ssl/ssl.key'
+gitlab_tls_certificate_path: 'etc/gitlab/ssl/ssl.crt'
+
+gitlab_letsncrypt_enable: 'no'
+gitlab_letsncrypt_contact_email: ['admin@example.com']
+
+#####################################
+# Monitoring GitLab with Prometheus #
+#####################################
+#
+# https://docs.gitlab.com/ee/administration/monitoring/prometheus/
+# prometheus_monitoring['enable'] = false полностью отключить мониторинг
+# prometheus['enable'] = false отключить встроеный прометеус
+#
+# gitlab_exporter['listen_address'] = '0.0.0.0'
+# sidekiq['listen_address'] = '0.0.0.0'
+# gitlab_exporter['listen_port'] = '9168'
+# node_exporter['listen_address'] = '0.0.0.0:9100'
+# redis_exporter['listen_address'] = '0.0.0.0:9121'
+# postgres_exporter['listen_address'] = '0.0.0.0:9187'
+# gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+# gitlab_workhorse['prometheus_listen_addr'] = "0.0.0.0:9229"
+
+gitlab_monitoring_prometheus: 'no'
+gitlab_built_in_prometheus_enable: 'yes' # Enable built-in prometheus
+
+# If you want to use external prometheus,
+# specify the services from which you will collect metrics
+gitlab_rails_monitoring_whitelist: "['127.0.0.0/8']"
+gitlab_built_in_prometeus_address: "127.0.1.0"
+gitlab_built_in_prometeus_port: "9090"
+gitlab_unicorn_listen_address: "127.0.1.0"
+gitlab_unicorn_listen_port: "8080"
+gitlab_exporter_listen_address: '127.0.1.0'
+gitlab_exporter_listen_port: '9168'
+gitlab_sidekiq_listen_address: '127.0.1.0'
+gitlab_sidekiq_listen_port: '8082'
+gitlab_node_exporter_listen_address: '127.0.1.0'
+gitlab_node_exporter_listen_port: '9100'
+gitlab_redis_exporter_listen_address: '127.0.1.0'
+gitlab_redis_exporter_listen_port: '9121'
+gitlab_postgres_exporter_listen_address: '127.0.1.0'
+gitlab_postgres_exporter_listen_port: '9187'
+gitlab_gitaly_prometheus_listen_address: '127.0.1.0'
+gitlab_gitaly_prometheus_listen_port: '9236'
+gitlab_workhorse_prometheus_listen_address: '127.0.1.0'
+gitlab_workhorse_prometheus_listen_port: '9229'
+
+####################
+# Render gitlab.rb #
+####################
+gitlab_email_enabled: 'false'
+gitlab_email_from: 'example@example.com'
+gitlab_email_display_name: 'Example'
+gitlab_email_reply_to: 'noreply@example.com'
+gitlab_smtp_enable: 'true'
+gitlab_smtp_address: 'smtp.server'
+gitlab_smtp_port: '465'
+gitlab_smtp_user_name: 'smtp user'
+gitlab_smtp_password: 'smtp password'
+gitlab_smtp_domain: 'example.com'
+gitlab_smtp_authentication: 'login'
+gitlab_smtp_enable_starttls_auto: 'true'
+gitlab_smtp_tls: 'false'
+
+gitlab_username_changing_enabled: 'false'
+
+## Managing large files such as audio, video and graphics files has always been one of the shortcomings of Git.
+## The general recommendation is to not have Git repositories larger than 1GB to preserve performance.
+## https://docs.gitlab.com/ee/topics/git/lfs/ ##
+
+gitlab_ldap_enabled: 'false'
+gitlab_ldap_label: 'LDAP'
+gitlab_ldap_host: '_your_ldap_server'
+gitlab_ldap_port: '389'
+gitlab_ldap_uid: 'sAMAccountName'
+gitlab_ldap_bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
+gitlab_ldap_password: '_the_password_of_the_bind_user'
+gitlab_ldap_encryption: 'plain' # "start_tls" or "simple_tls" or "plain"
+gitlab_ldap_verify_certificates: 'true'
+gitlab_ldap_base: ''
+
+## Rack Attack, also known as Rack::Attack
+## is a Ruby gem that is meant to protect GitLab with the ability to customize throttling
+## and to block user IP addresses.
+##
+## You can prevent brute-force passwords attacks, scrapers,
+## or any other offenders by throttling requests from IP addresses that are making large volumes of requests.
+## If you find throttling is not enough to protect you against abusive clients,
+## Rack Attack offers IP whitelisting, blacklisting, Fail2ban style filtering, and tracking.
+##
+## For more information on how to use these options see https://docs.gitlab.com/ee/security/rack_attack.html
+gitlab_rack_attack_git_basic_auth_enabled: 'false'
+gitlab_rack_attack_git_basic_auth_ip_whitelist: '["127.0.0.1"]'
+gitlab_rack_attack_git_basic_auth_maxretry: '10'
+gitlab_rack_attack_git_basic_auth_findtime: '60'
+gitlab_rack_attack_git_basic_auth_bantime: '3600'
+
+## GitLab uses Unicorn, a pre-forking Ruby web server, to handle web requests (web browsers and Git HTTP clients).
+## Unicorn is a daemon written in Ruby and C that can load and run a Ruby on Rails application;
+## in our case the Rails application is GitLab Community Edition or GitLab Enterprise Edition.
+##
+## https://docs.gitlab.com/ee/administration/operations/unicorn.html
+gitlab_unicorn_enable: 'true'
+gitlab_unicorn_worker_timeout: '60'
+###! Minimum worker_processes is 2 at this moment
+### https://docs.gitlab.com/ee/install/requirements.html#unicorn-workers
+# (CPU cores * 1.5) + 1
+gitlab_unicorn_worker_processes: '2'
+gitlab_unicorn_tcp_nopush: 'true'
+gitlab_unicorn_backlog_socket: '1024'
+gitlab_unicorn_somaxconn: '1024'
+### **Only change these settings if you understand well what they mean**
+####! Docs: https://docs.gitlab.com/ee/administration/operations/unicorn.html#unicorn-worker-killer
+####!       https://github.com/kzk/unicorn-worker-killer
+#Default min 400MB, max 650MB
+gitlab_unicorn_worker_memory_limit_min: '400 * 1 << 20'
+gitlab_unicorn_worker_memory_limit_max: '650 * 1 << 20'
+
+################################################################################
+### GitLab Puma
+###! Tweak puma settings. You should only use Unicorn or Puma, not both.
+###! Docs: https://docs.gitlab.com/omnibus/settings/puma.html
+###! If you using Gitlab version >= 13.* You need using puma, unicorn most be off!!!
+#################################################################################
+
+gitlab_puma_enable: 'false'
+gitlab_puma_worker_timeout: '60'
+gitlab_puma_worker_processes: '2'
+
+gitlab_pages_enable: 'no'
+gitlab_pages_hostname: '{{gitlab_domain_name}}'
+gitlab_pages_inplace_chroot: 'true'
+gitlab_pages_access_control: 'false'
+# If gitlab_https: 'yes' you need valid wildcard certs for pages
+gitlab_pages_ssl_certificate: '{{gitlab_tls_certificate_path}}'
+gitlab_pages_ssl_certificate_key: '{{gitlab_tls_private_key_path}}'
+
+################################################################################
+## Container Registry settings
+##! Docs: https://docs.gitlab.com/ee/administration/container_registry.html
+################################################################################
+
+gitlab_registry_external_url: 'https://registry.example.com'
+
+### Settings used by GitLab application
+gitlab_registry_enabled: "no"
+
+#####################
+# Config postgresql #
+#####################
+gitlab_postgresql_enable: "true"
+##! **recommend value is 1/4 of total RAM, up to 14GB.**
+gitlab_postgresql_shared_buffers: "1024MB"
+
+### Advanced settings
+gitlab_postgresql_max_connections: "200"
+gitlab_postgresql_wal_buffers: "-1"
+gitlab_postgresql_autovacuum_max_workers: "3"
+gitlab_postgresql_autovacuum_freeze_max_age: "200000000"
+gitlab_postgresql_track_activity_query_size: "1024"
+
+### Replication settings
+###! Note, some replication settings do not require a full restart. They are documented below.
+gitlab_postgresql_max_locks_per_transaction: "128"
+gitlab_postgresql_min_wal_size: "80MB"
+gitlab_postgresql_max_wal_size: "1GB"
+gitlab_postgresql_wal_keep_segments: "10"
+gitlab_postgresql_max_standby_archive_delay: "30s"
+gitlab_postgresql_max_standby_streaming_delay: "30s"
+gitlab_postgresql_synchronous_commit: "on"
+gitlab_postgresql_random_page_cost: "2.0"
+gitlab_postgresql_log_temp_files: "-1"
+gitlab_postgresql_log_checkpoints: 'off'
+
+## Postgres perfomance settings
+###! Changing any of these settings only requires a reload of postgresql. You do not need to
+###! restart postgresql if you change any of these and run reconfigure.
+gitlab_postgresql_work_mem: "16MB"
+gitlab_postgresql_maintenance_work_mem: "16MB"
+gitlab_postgresql_checkpoint_segments: "10"
+gitlab_postgresql_checkpoint_timeout: "5min"
+gitlab_postgresql_checkpoint_completion_target: "0.9"
+gitlab_postgresql_effective_io_concurrency: "1"
+gitlab_postgresql_checkpoint_warning: "30s"
+gitlab_postgresql_effective_cache_size: "1MB"
+gitlab_postgresql_shmmax: "17179869184" # or "4294967295"
+gitlab_postgresql_shmall: "4194304" # or "1048575"
+gitlab_postgresql_autovacuum: "on"
+gitlab_postgresql_log_autovacuum_min_duration: "-1"
+gitlab_postgresql_autovacuum_naptime: "1min"
+gitlab_postgresql_autovacuum_vacuum_threshold: "50"
+gitlab_postgresql_autovacuum_analyze_threshold: "50"
+gitlab_postgresql_autovacuum_vacuum_scale_factor: "0.02"
+gitlab_postgresql_autovacuum_analyze_scale_factor: "0.01"
+gitlab_postgresql_autovacuum_vacuum_cost_delay: "20ms"
+gitlab_postgresql_autovacuum_vacuum_cost_limit: "-1"
+gitlab_postgresql_statement_timeout: "60000"
+gitlab_postgresql_idle_in_transaction_session_timeout: "60000"
+gitlab_postgresql_log_line_prefix: "%a"
+gitlab_postgresql_max_worker_processes: "8"
+gitlab_postgresql_max_parallel_workers_per_gather: "0"
+gitlab_postgresql_log_lock_waits: "1"
+gitlab_postgresql_deadlock_timeout: '5s'
+gitlab_postgresql_track_io_timing: "0"
+gitlab_postgresql_default_statistics_target: "1000"

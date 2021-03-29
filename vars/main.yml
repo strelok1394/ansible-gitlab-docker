@@ -1,0 +1,6 @@
+---
+gitlab_etc_dir: '{{gitlab_homedir}}/etc/gitlab'
+gitlab_opt_dir: '{{gitlab_homedir}}/var/opt/gitlab'
+gitlab_log_dir: '{{gitlab_homedir}}/var/log/gitlab'
+gitlab_networks: 'gitlab'
+gitlab_docker_container_name: "gitlab-server"

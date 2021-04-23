@@ -1,1 +1,19 @@
 ---
+galaxy_info:
+  author: Strelok1394
+  description: Playbook for gitlab in docker.
+  license: GPLv3
+  min_ansible_version: 2.4
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+    - name: Debian
+      versions:
+        - stretch
+        - buster
+  galaxy_tags:
+    - gitlab
+    - docker
+
+dependencies: []

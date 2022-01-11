@@ -1466,7 +1466,7 @@ nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/tls.key"
 
 ##! **Docs: http://nginx.org/en/docs/http/ngx_http_gzip_module.html**
 # nginx['gzip_enabled'] = true
-{% if gitlab_https_in_docker == yes %}
+{% if gitlab_https_in_docker == 'yes' %}
 ##! **Override only if you use a reverse proxy**
 ##! Docs: https://docs.gitlab.com/omnibus/settings/nginx.html#setting-the-nginx-listen-port
 # nginx['listen_port'] = nil

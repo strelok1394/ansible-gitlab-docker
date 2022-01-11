@@ -30,11 +30,7 @@
 ##! address from AWS. For more details, see:
 ##! https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
 
-{%if gitlab_https == 'yes'%}
-external_url 'https://{{gitlab_domain_name}}'
-{%else%}
-external_url 'http://{{gitlab_domain_name}}'
-{%endif%}
+external_url '{{gitlab_external_url}}'
 
 ## Roles for multi-instance GitLab
 ##! The default is to have no roles enabled, which results in GitLab running as an all-in-one instance.
@@ -45,7 +41,6 @@ external_url 'http://{{gitlab_domain_name}}'
 ##! https://docs.gitlab.com/omnibus/roles/README.html#roles
 ##!
 # roles ['redis_sentinel_role', 'redis_master_role']
-
 ## Legend
 ##! The following notations at the beginning of each line may be used to
 ##! differentiate between components of this file and to easily select them using
@@ -1419,7 +1414,7 @@ postgresql['log_checkpoints'] = '{{gitlab_postgresql_log_checkpoints}}'
 
 # nginx['enable'] = true
 # nginx['client_max_body_size'] = '250m'
-{%if gitlab_https == 'yes'%}
+{%if gitlab_https_in_docker == 'yes'%}
 nginx['redirect_http_to_https'] = true
 {%else%}
 #nginx['redirect_http_to_https'] = false
@@ -1435,7 +1430,7 @@ nginx['redirect_http_to_https'] = true
 ##! if ssl_verify_client on, verification depth in the client certificates chain
 # nginx['ssl_verify_depth'] = "1"
 
-{% if gitlab_https == 'yes' and gitlab_letsncrypt_enable == 'no' %}
+{% if gitlab_https_in_docker == 'yes' and gitlab_letsncrypt_enable == 'no' %}
 nginx['ssl_certificate'] = "/etc/gitlab/ssl/tls.crt"
 nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/tls.key"
 {% else %}
@@ -1647,11 +1642,7 @@ nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/tls.key"
 {%if gitlab_pages_enable != 'yes'%}
 # pages_external_url "http://pages.example.com/"
 # gitlab_pages['enable'] = false
-{%elif gitlab_https == 'yes'%}
-pages_external_url "https://{{gitlab_pages_hostname}}/"
-gitlab_pages['enable'] = true
-{%else%}
-pages_external_url "http://{{gitlab_pages_hostname}}/"
+pages_external_url "{{gitlab_pages_external_url}}"
 gitlab_pages['enable'] = true
 {%endif%}
 
@@ -1804,7 +1795,7 @@ gitlab_pages['access_control'] = {{gitlab_pages_access_control}}
 
 # Below you can find settings that are exclusive to "GitLab Pages NGINX"
 # pages_nginx['enable'] = true
-{%if gitlab_https == 'yes'%}
+{%if gitlab_https_in_docker == 'yes'%}
 pages_nginx['redirect_http_to_https'] = true
 pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/pages_tls.crt"
 pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/pages_tls.key"

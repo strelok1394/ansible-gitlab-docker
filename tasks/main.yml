@@ -58,7 +58,7 @@
     - {src: '{{gitlab_pages_ssl_certificate_key}}', dest: '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.key'}
   register: copy_ssl_cert_out
   when: 
-  - gitlab_https == 'yes'
+  - gitlab_https_in_docker == 'yes'
   - gitlab_letsncrypt_enable == 'no'
 
 - name: Delete ssl cert and key
@@ -71,7 +71,7 @@
     - '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.crt'
     - '{{gitlab_homedir}}/etc/gitlab/ssl/pages_tls.key'
   register: gitlab_delete_cert_out
-  when: gitlab_https == 'no' or gitlab_letsncrypt_enable == 'yes'
+  when: gitlab_https_in_docker == 'no' or gitlab_letsncrypt_enable == 'yes'
 
 - name: Start/Restart gitlab
   block:

@@ -1639,7 +1639,7 @@ nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/tls.key"
 ################################################################################
 
 ##! Define to enable GitLab Pages
-{%if gitlab_pages_enable != 'yes'%}
+{%if gitlab_pages_enable == 'yes'%}
 # pages_external_url "http://pages.example.com/"
 # gitlab_pages['enable'] = false
 pages_external_url "{{gitlab_pages_external_url}}"

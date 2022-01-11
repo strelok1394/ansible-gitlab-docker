@@ -175,6 +175,7 @@ gitlab_pages_ssl_certificate_key: '{{gitlab_tls_private_key_path}}'
 ################################################################################
 
 gitlab_registry_external_url: 'https://registry.example.com'
+gitlab_registry_nginx_listen_https: 'false'
 
 ### Settings used by GitLab application
 gitlab_registry_enabled: "no"

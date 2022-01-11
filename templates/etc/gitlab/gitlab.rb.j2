@@ -1940,6 +1940,8 @@ gitlab_kas['enable'] = {{gitlab_kas_enable}}
 # Below you can find settings that are exclusive to "Registry NGINX"
 # registry_nginx['enable'] = false
 
+registry_nginx['listen_https'] = {{gitlab_registry_nginx_listen_https}}
+
 # registry_nginx['proxy_set_headers'] = {
 #  "Host" => "$http_host",
 #  "X-Real-IP" => "$remote_addr",

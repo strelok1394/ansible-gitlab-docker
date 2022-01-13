@@ -481,37 +481,7 @@ gitlab_rails['ldap_enabled'] = {{gitlab_ldap_enabled}}
 # gitlab_rails['prevent_ldap_sign_in'] = false
 
 gitlab_rails['ldap_group_sync_worker_cron'] = '4 * * * *'
-gitlab_rails['ldap_servers'] = {
-  'main' => {
-    'label'             => '{{gitlab_ldap_label}}',
-    'host'              => '{{gitlab_ldap_host}}',
-    'port'              => '{{gitlab_ldap_port}}',
-    'encryption'        => '{{gitlab_ldap_encryption}}',
-    'method'            => '{{gitlab_ldap_method}}',
-    'base'              => '{{gitlab_ldap_base}}',
-    'bind_dn'           => '{{gitlab_ldap_bind_dn}}',
-    'password'          => '{{gitlab_ldap_password}}',
-    'user_filter'       => '{{gitlab_ldap_user_filter}}',
-    'verify_certificates' => {{gitlab_ldap_verify_certificates}},
-    'allow_username_or_email_login' => {{gitlab_ldap_allow_username_or_email_login}},
-    'active_directory'  => {{gitlab_ldap_active_directory}},
-    'block_after_created_users' => {{gitlab_ldap_block_after_created_users}},
-    'lowercase_usernames' => {{gitlab_ldap_lowercase_usernames}},
-    'uid'               => '{{gitlab_ldap_uid}}',
-{% if gitlab_ldap_attributes == 'yes' %}
-    'attributes'        => {
-      'email'           => '{{gitlab_ldap_attributes_email}}',
-      'last_name'       => '{{gitlab_ldap_attributes_last_name}}',
-      'username'        => '{{gitlab_ldap_attributes_username}}',
-      'name'            => '{{gitlab_ldap_attributes_name}}'
-    },
-{% endif %}
-# Only GitLab EE
-    'group_base'        => '{{gitlab_ldap_group_base}}',
-    'admin_group'       => '{{gitlab_ldap_admin_group}}',
-    'sync_ssh_keys'     => {{gitlab_ldap_sync_ssh_keys}}
-  }
-}
+gitlab_rails['ldap_servers'] = {{gitlab_ldap_servers}}
 
 ###! **remember to close this block with 'EOS' below**
 # gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
@@ -1961,7 +1931,7 @@ registry_nginx['listen_https'] = {{gitlab_registry_nginx_listen_https}}
 
 # When the registry is automatically enabled using the same domain as `external_url`,
 # it listens on this port
-{% if gitlab_registry_nginx_listen_https %}
+{% if gitlab_registry_nginx_listen_https|bool %}
 registry_nginx['listen_port'] = 443
 {% else %}
 registry_nginx['listen_port'] = 80

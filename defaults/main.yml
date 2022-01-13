@@ -102,30 +102,36 @@ gitlab_default_can_create_group: 'true'
 ## https://docs.gitlab.com/ee/topics/git/lfs/ ##
 
 gitlab_ldap_enabled: 'false'
-gitlab_ldap_label: 'LDAP'
-gitlab_ldap_host: '_your_ldap_server'
-gitlab_ldap_port: '389'
-gitlab_ldap_encryption: 'plain' # "start_tls" or "simple_tls" or "plain"
-gitlab_ldap_method: "{{gitlab_ldap_encryption}}"
-gitlab_ldap_base: ''
-gitlab_ldap_bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
-gitlab_ldap_password: '_the_password_of_the_bind_user' #Use Vault Luke
-gitlab_ldap_user_filter: ''
-gitlab_ldap_verify_certificates: 'true'
-gitlab_ldap_allow_username_or_email_login: 'false'
-gitlab_ldap_active_directory: 'true'
-gitlab_ldap_block_after_created_users: 'false'
-gitlab_ldap_lowercase_usernames: 'false'
-gitlab_ldap_uid: 'sAMAccountName'
-gitlab_ldap_attributes: 'no'
-gitlab_ldap_attributes_email: ''
-gitlab_ldap_attributes_last_name: ''
-gitlab_ldap_attributes_username: ''
-gitlab_ldap_attributes_name: ''
-# Only GitLab EE
-gitlab_ldap_group_base: ''
-gitlab_ldap_admin_group: ''
-gitlab_ldap_sync_ssh_keys: 'false'
+#gitlab_ldap_servers: |
+#{
+#  'main' => {
+#    'label'             => 'LDAP',
+#    'host'              => 'ldap.example.com',
+#    'port'              => '389',
+#    'encryption'        => 'plain',
+#    'method'            => 'plain',
+#    'base'              => '',
+#    'bind_dn'           => '_the_full_dn_of_the_user_you_will_bind_with',
+#    'password'          => 'Use_Vault_Luke',
+#    'user_filter'       => '',
+#    'verify_certificates' => true,
+#    'allow_username_or_email_login' => true,
+#    'active_directory'  => false,
+#    'block_after_created_users' => false,
+#    'lowercase_usernames' => false,
+#    'uid'               => 'uid',
+#    'attributes'        => {
+#      'email'           => 'mail',
+#      'last_name'       => 'sn',
+#      'username'        => 'uid',
+#      'name'            => 'cn'
+#    },
+## Only GitLab EE
+#    'group_base'        => '',
+#    'admin_group'       => 'admins',
+#    'sync_ssh_keys'     => false
+#  }
+#}
 
 ## Rack Attack, also known as Rack::Attack
 ## is a Ruby gem that is meant to protect GitLab with the ability to customize throttling

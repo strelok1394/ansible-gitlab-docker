@@ -27,9 +27,7 @@ services:
              target: /var/opt/gitlab/backups
         ports:
            - "{{gitlab_http_ip}}:{{gitlab_http_port}}:80"
-{% if gitlab_https_in_docker == 'yes' %}
            - "{{gitlab_https_ip}}:{{gitlab_https_port}}:443"
-{% endif %}
            - "{{gitlab_ssh_ip}}:{{gitlab_ssh_port}}:22"
 {% if gitlab_built_in_prometheus_enable is defined %}
            - "{{gitlab_built_in_prometeus_address}}:{{gitlab_built_in_prometeus_port}}:9090"

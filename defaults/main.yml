@@ -74,6 +74,8 @@ gitlab_gitaly_prometheus_listen_address: '127.0.1.0'
 gitlab_gitaly_prometheus_listen_port: '9236'
 gitlab_workhorse_prometheus_listen_address: '127.0.1.0'
 gitlab_workhorse_prometheus_listen_port: '9229'
+gitlab_grafana_listen_address: '127.0.1.0'
+gitlab_grafana_listen_port: '3000'
 
 ####################
 # Render gitlab.rb #
@@ -96,6 +98,8 @@ gitlab_smtp_tls: 'false'
 
 gitlab_username_changing_enabled: 'false'
 gitlab_default_can_create_group: 'true'
+
+#gitlab_backup_keep_time: "604800"
 
 ## Managing large files such as audio, video and graphics files has always been one of the shortcomings of Git.
 ## The general recommendation is to not have Git repositories larger than 1GB to preserve performance.

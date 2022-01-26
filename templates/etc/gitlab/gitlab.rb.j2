@@ -591,7 +591,11 @@ gitlab_rails['omniauth_providers'] = {{gitlab_rails_omniauth_providers_list}}
 # gitlab_rails['backup_pg_schema'] = 'public'
 
 ###! The duration in seconds to keep backups before they are allowed to be deleted
+{% if gitlab_backup_keep_time is define %}
+gitlab_rails['backup_keep_time'] = {{ gitlab_backup_keep_time }}
+{% else %}
 # gitlab_rails['backup_keep_time'] = 604800
+{% endif %}
 
 # gitlab_rails['backup_upload_connection'] = {
 #   'provider' => 'AWS',

@@ -57,7 +57,7 @@ services:
            - "{{gitlab_unicorn_listen_address}}:{{gitlab_unicorn_listen_port}}:8080"
 {% endif %}
 {% if gitlab_grafana_listen_address is defined %}
-           - "{{gitlab_grafana_listen_address}}:{{gitlab_grafana_listen_address}}:3000"
+           - "{{gitlab_grafana_listen_address}}:{{gitlab_grafana_listen_port}}:3000"
 {% endif %}
 
 networks:

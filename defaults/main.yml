@@ -5,7 +5,6 @@
 
 gitlab_purge: 'no'
 gitlab_docker_start: 'yes'
-gitlab_domain_name: "gitlab.example.com"
 gitlab_version: "12.7.0-ce.0"
 gitlab_docker_image: 'gitlab/gitlab-ce:{{gitlab_version}}'
 gitlab_docker_hostname: '{{inventory_hostname}}'
@@ -22,7 +21,7 @@ gitlab_https_port: '443'
 gitlab_ssh_port: '22'
 gitlab_promiteus_port: "8080"
 
-gitlab_https: 'no' # -> "pages need *.certs"
+gitlab_https_in_docker: 'no' # -> "pages need *.certs"
 #gitlab_https: 'no' reverse_proxy
 
 #If the variable "gitlab_use_local_certs" is set to "yes",
@@ -75,10 +74,14 @@ gitlab_gitaly_prometheus_listen_address: '127.0.1.0'
 gitlab_gitaly_prometheus_listen_port: '9236'
 gitlab_workhorse_prometheus_listen_address: '127.0.1.0'
 gitlab_workhorse_prometheus_listen_port: '9229'
+gitlab_grafana_listen_address: '127.0.1.0'
+gitlab_grafana_listen_port: '3000'
 
 ####################
 # Render gitlab.rb #
 ####################
+gitlab_domain_name: "gitlab.example.com"
+gitlab_external_url: "http://{{gitlab_domain_name}}"
 gitlab_email_enabled: 'false'
 gitlab_email_from: 'example@example.com'
 gitlab_email_display_name: 'Example'
@@ -86,29 +89,55 @@ gitlab_email_reply_to: 'noreply@example.com'
 gitlab_smtp_enable: 'true'
 gitlab_smtp_address: 'smtp.server'
 gitlab_smtp_port: '465'
-gitlab_smtp_user_name: 'smtp user'
-gitlab_smtp_password: 'smtp password'
+#gitlab_smtp_user_name: 'smtp user'
+#gitlab_smtp_password: 'smtp password'
 gitlab_smtp_domain: 'example.com'
-gitlab_smtp_authentication: 'login'
+#gitlab_smtp_authentication: 'login'
 gitlab_smtp_enable_starttls_auto: 'true'
 gitlab_smtp_tls: 'false'
+gitlab_smtp_openssl_verify_mode: 'none'
+
 
 gitlab_username_changing_enabled: 'false'
+gitlab_default_can_create_group: 'true'
+
+#gitlab_backup_keep_time: "604800"
 
 ## Managing large files such as audio, video and graphics files has always been one of the shortcomings of Git.
 ## The general recommendation is to not have Git repositories larger than 1GB to preserve performance.
 ## https://docs.gitlab.com/ee/topics/git/lfs/ ##
 
 gitlab_ldap_enabled: 'false'
-gitlab_ldap_label: 'LDAP'
-gitlab_ldap_host: '_your_ldap_server'
-gitlab_ldap_port: '389'
-gitlab_ldap_uid: 'sAMAccountName'
-gitlab_ldap_bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
-gitlab_ldap_password: '_the_password_of_the_bind_user'
-gitlab_ldap_encryption: 'plain' # "start_tls" or "simple_tls" or "plain"
-gitlab_ldap_verify_certificates: 'true'
-gitlab_ldap_base: ''
+#gitlab_ldap_servers: |
+#{
+#  'main' => {
+#    'label'             => 'LDAP',
+#    'host'              => 'ldap.example.com',
+#    'port'              => '389',
+#    'encryption'        => 'plain',
+#    'method'            => 'plain',
+#    'base'              => '',
+#    'bind_dn'           => '_the_full_dn_of_the_user_you_will_bind_with',
+#    'password'          => 'Use_Vault_Luke',
+#    'user_filter'       => '',
+#    'verify_certificates' => true,
+#    'allow_username_or_email_login' => true,
+#    'active_directory'  => false,
+#    'block_after_created_users' => false,
+#    'lowercase_usernames' => false,
+#    'uid'               => 'uid',
+#    'attributes'        => {
+#      'email'           => 'mail',
+#      'last_name'       => 'sn',
+#      'username'        => 'uid',
+#      'name'            => 'cn'
+#    },
+## Only GitLab EE
+#    'group_base'        => '',
+#    'admin_group'       => 'admins',
+#    'sync_ssh_keys'     => false
+#  }
+#}
 
 ## Rack Attack, also known as Rack::Attack
 ## is a Ruby gem that is meant to protect GitLab with the ability to customize throttling
@@ -131,21 +160,7 @@ gitlab_rack_attack_git_basic_auth_bantime: '3600'
 ## in our case the Rails application is GitLab Community Edition or GitLab Enterprise Edition.
 ##
 ## https://docs.gitlab.com/ee/administration/operations/unicorn.html
-gitlab_unicorn_enable: 'true'
-gitlab_unicorn_worker_timeout: '60'
-###! Minimum worker_processes is 2 at this moment
-### https://docs.gitlab.com/ee/install/requirements.html#unicorn-workers
-# (CPU cores * 1.5) + 1
-gitlab_unicorn_worker_processes: '2'
-gitlab_unicorn_tcp_nopush: 'true'
-gitlab_unicorn_backlog_socket: '1024'
-gitlab_unicorn_somaxconn: '1024'
-### **Only change these settings if you understand well what they mean**
-####! Docs: https://docs.gitlab.com/ee/administration/operations/unicorn.html#unicorn-worker-killer
-####!       https://github.com/kzk/unicorn-worker-killer
-#Default min 400MB, max 650MB
-gitlab_unicorn_worker_memory_limit_min: '400 * 1 << 20'
-gitlab_unicorn_worker_memory_limit_max: '650 * 1 << 20'
+### NOT Support for Gitlab version >= 14.*
 
 ################################################################################
 ### GitLab Puma
@@ -154,12 +169,12 @@ gitlab_unicorn_worker_memory_limit_max: '650 * 1 << 20'
 ###! If you using Gitlab version >= 13.* You need using puma, unicorn most be off!!!
 #################################################################################
 
-gitlab_puma_enable: 'false'
+gitlab_puma_enable: 'true'
 gitlab_puma_worker_timeout: '60'
 gitlab_puma_worker_processes: '2'
 
 gitlab_pages_enable: 'no'
-gitlab_pages_hostname: '{{gitlab_domain_name}}'
+gitlab_pages_external_url: 'http://pages.{{gitlab_domain_name}}'
 gitlab_pages_inplace_chroot: 'true'
 gitlab_pages_access_control: 'false'
 # If gitlab_https: 'yes' you need valid wildcard certs for pages
@@ -172,6 +187,7 @@ gitlab_pages_ssl_certificate_key: '{{gitlab_tls_private_key_path}}'
 ################################################################################
 
 gitlab_registry_external_url: 'https://registry.example.com'
+gitlab_registry_nginx_listen_https: 'false'
 
 ### Settings used by GitLab application
 gitlab_registry_enabled: "no"
@@ -234,3 +250,39 @@ gitlab_postgresql_log_lock_waits: "1"
 gitlab_postgresql_deadlock_timeout: '5s'
 gitlab_postgresql_track_io_timing: "0"
 gitlab_postgresql_default_statistics_target: "1000"
+
+#####################
+# Config Gitlab KAS #
+#####################
+
+gitlab_kas_enable: "false"
+
+#################
+# Job Artifacts #
+#################
+gitlab_artifacts_enabled: "true"
+# Job artifacts Object Store
+gitlab_artifacts_object_store_enabled: "false"
+gitlab_artifacts_object_store_remote_directory: "gitlab-artifacts-storage"
+gitlab_artifacts_object_store_connection_provider: "AWS"
+gitlab_artifacts_object_store_connection_region: "eu-west-1"
+gitlab_artifacts_object_store_connection_aws_access_key_id: "Use_Vautl_Luke"
+gitlab_artifacts_object_store_connection_aws_secret_access_key: "Use_Vautl_Luke"
+# # The below options configure an S3 compatible host instead of AWS
+# 'aws_signature_version' => 4, # For creation of signed URLs. Set to 2 if provider does not support v4.
+# 'endpoint' => 'https://s3.amazonaws.com', # default: nil - Useful for S3 compliant services such as DigitalOcean Spaces
+gitlab_artifacts_object_store_connection_endpoint: "http://127.0.0.1:9000"
+gitlab_artifacts_object_store_connection_host: "127.0.0.1"
+gitlab_artifacts_object_store_connection_port: "9000"
+gitlab_artifacts_object_store_connection_path_style: "host/bucket_name/object" #instead of 'bucket_name.host/object'
+
+gitlab_rails_omniauth_providers: "yes"
+gitlab_rails_omniauth_providers_list: |
+  [
+      {
+        "name" => "gitlab",
+        "app_id" => "use_Vautl_Luke",
+        "app_secret" => "use_Vault_Luke",
+        "args" => { "scope" => "api" }
+      }
+  ]

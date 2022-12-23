@@ -1634,15 +1634,14 @@ nginx['listen_https'] = false
 ################################################################################
 
 ##! Define to enable GitLab Pages
+
 {%if gitlab_pages_enable == 'yes'%}
-# pages_external_url "http://pages.example.com/"
-# gitlab_pages['enable'] = false
 pages_external_url "{{gitlab_pages_external_url}}"
 gitlab_pages['enable'] = true
-{%endif%}
-
+{%else%}
 # pages_external_url "http://pages.example.com/"
 # gitlab_pages['enable'] = false
+{%endif%}
 
 ##! Configure to expose GitLab Pages on external IP address, serving the HTTP
 # gitlab_pages['external_http'] = []
@@ -1789,11 +1788,17 @@ gitlab_pages['access_control'] = {{gitlab_pages_access_control}}
 # `pages_nginx['some_setting']` and should be set separately.
 
 # Below you can find settings that are exclusive to "GitLab Pages NGINX"
-# pages_nginx['enable'] = true
+{%if gitlab_pages_enable == 'yes'%}
 {%if gitlab_https_in_docker == 'yes'%}
 pages_nginx['redirect_http_to_https'] = true
 pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/pages_tls.crt"
 pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/pages_tls.key"
+{%else%}
+pages_nginx['enable'] = true
+pages_nginx['listen_port'] = 80
+pages_nginx['listen_https'] = false
+pages_nginx['redirect_http_to_https'] = {{gitlab_pages_nginx_redirect_http_to_https}}
+{%endif%}
 {%endif%}
 # gitlab_rails['pages_path'] = "/var/opt/gitlab/gitlab-rails/shared/pages"
 
@@ -2004,6 +2009,12 @@ prometheus['listen_address'] = '0.0.0.0:9090'
 #   },
 # ]
 #
+{% if gitlab_prometheus_scrape_configs is defined and gitlab_prometheus_scrape_configs != ''%}
+prometheus['scrape_configs'] = [
+{% for scrape_configs in gitlab_prometheus_scrape_configs%}
+  {{scrape_configs}}]
+{%endfor%}
+{%endif%}
 ### Custom alertmanager config
 #
 # To configure external alertmanagers, create an alertmanager config.
@@ -2185,10 +2196,17 @@ node_exporter['listen_address'] = '0.0.0.0:9100'
 # grafana['enable'] = true
 # grafana['log_directory'] = '/var/log/gitlab/grafana'
 # grafana['home'] = '/var/opt/gitlab/grafana'
+{% if gitlab_grafana_admin_enable == 'yes' %}
+grafana['admin_password'] = '{{gitlab_grafana_admin_pass}}'
+#grafana['allow_user_sign_up'] = true
+grafana['basic_auth_enabled'] = true
+grafana['disable_login_form'] = false
+{%else%}
 # grafana['admin_password'] = 'admin'
 # grafana['allow_user_sign_up'] = false
 # grafana['basic_auth_enabled'] = false
 # grafana['disable_login_form'] = true
+{%endif%}
 # grafana['gitlab_application_id'] = 'GITLAB_APPLICATION_ID'
 # grafana['gitlab_secret'] = 'GITLAB_SECRET'
 # grafana['env_directory'] = '/opt/gitlab/etc/grafana/env'

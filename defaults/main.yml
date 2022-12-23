@@ -5,7 +5,7 @@
 
 gitlab_purge: 'no'
 gitlab_docker_start: 'yes'
-gitlab_version: "12.7.0-ce.0"
+gitlab_version: "15.3.2-ee.0"
 gitlab_docker_image: 'gitlab/gitlab-ce:{{gitlab_version}}'
 gitlab_docker_hostname: '{{inventory_hostname}}'
 gitlab_homedir: '/data/gitlab'
@@ -177,6 +177,7 @@ gitlab_pages_enable: 'no'
 gitlab_pages_external_url: 'http://pages.{{gitlab_domain_name}}'
 gitlab_pages_inplace_chroot: 'true'
 gitlab_pages_access_control: 'false'
+gitlab_pages_nginx_redirect_http_to_https: 'false'
 # If gitlab_https: 'yes' you need valid wildcard certs for pages
 gitlab_pages_ssl_certificate: '{{gitlab_tls_certificate_path}}'
 gitlab_pages_ssl_certificate_key: '{{gitlab_tls_private_key_path}}'
@@ -286,3 +287,25 @@ gitlab_rails_omniauth_providers_list: |
         "args" => { "scope" => "api" }
       }
   ]
+
+#####################
+# Config prometheus #
+#####################
+
+# gitlab_prometheus_scrape_configs:
+#   - |
+#     {
+#         'job_name': 'gitlab-ci-pipelines-exporter',
+#         'metrics_path': '/metrics',
+#         'scheme': 'https',
+#         'static_configs' => [
+#           'targets' => ['ci-monitor.example.com'],
+#         ],
+#       },
+
+##################
+# Config grafana #
+##################
+
+gitlab_grafana_admin_enable: 'no'
+gitlab_grafana_admin_pass: 'UseVaultLuke'
